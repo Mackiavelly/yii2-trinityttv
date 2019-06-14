@@ -84,7 +84,6 @@ class TrinityApi extends BaseObject {
 			] + $this::$requestParams;
 		$this::$requestParams += ['hash' => $this->createHash()];
 		$client = new Client(['baseUrl' => $this::$apiUrl]);
-		Debug::prePrint($this::$requestParams);
 		$response = $client->get($this::$action, $this::$requestParams)->send();
 		if ($response->isOk) {
 			return Json::decode($response->getContent());
