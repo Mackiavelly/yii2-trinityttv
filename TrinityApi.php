@@ -19,7 +19,7 @@ class TrinityApi extends BaseObject {
 	 * Базовые настройки для провайдера (выдаются при старте проекта)
 	 * идентификатор партнера
 	 *
-	 * @VAR STRING
+	 * @var string
 	 */
 	public $partnerID;
 	/**
