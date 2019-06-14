@@ -1,0 +1,22 @@
+{
+    "name": "mackiavelly/yii2-trinitytv",
+    "description": "Yii2 + Trinity.TV",
+    "type": "yii2-extension",
+    "keywords": ["yii2","extension","trinitytv"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "mackiavelly",
+            "email": "ksander.zone@gmail.com"
+        }
+    ],
+    "require": {
+        "yiisoft/yii2": "~2.0.0",
+        "yiisoft/yii2-httpclient": "~2.0.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "mackiavelly\\trinitytv\\": ""
+        }
+    }
+}
