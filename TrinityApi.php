@@ -2,7 +2,6 @@
 
 namespace mackiavelly\trinitytv;
 
-use app\components\Debug;
 use Exception;
 use yii\base\BaseObject;
 use yii\helpers\Json;
