@@ -2,6 +2,9 @@ Yii2 + Trinity.TV
 =================
 Yii2 + Trinity.TV
 
+Документация
+https://docs.google.com/document/d/1P43gLkBuNB9DnPF9I3aGG7HvLCnUCCYjylVec8vcjjg/edit
+
 Installation
 ------------
 
