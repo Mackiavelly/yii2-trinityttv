@@ -239,7 +239,7 @@ class TrinityApi extends BaseObject {
 	 * {
 	 * "requestid": "100",
 	 * "result": "success",
-	 * "mac": "11:22:33:44:55:66"
+	 * "mac": "112233445566"
 	 * "uuid": "aaaaaabbbbbcccccddddd"
 	 * }
 	 * либо
