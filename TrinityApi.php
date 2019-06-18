@@ -71,7 +71,7 @@ class TrinityApi extends BaseObject {
 		$this::$action = 'create';
 		$this::$requestParams = [
 			'localid'  => $localId,
-			'subsrcid' => $subscrID,
+			'subscrid' => $subscrID,
 		];
 		return $this->sendRequest();
 	}
