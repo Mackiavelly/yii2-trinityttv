@@ -21,7 +21,7 @@ class TrinityApi extends BaseObject {
 	 *
 	 * @var string
 	 */
-	public $partnerID;
+	public $partnerId;
 	/**
 	 * ключ для формирования запроса на авторизацию
 	 *
@@ -30,8 +30,8 @@ class TrinityApi extends BaseObject {
 	public $salt;
 
 	public function init() {
-		if (!$this->partnerID || !$this->salt) {
-			throw new Exception('Не указаны обязательные поля: partnerID и salt');
+		if (!$this->partnerId || !$this->salt) {
+			throw new Exception('Не указаны обязательные поля: partnerId и salt');
 		}
 	}
 
@@ -79,7 +79,7 @@ class TrinityApi extends BaseObject {
 	public function sendRequest() {
 		$this::$requestParams = [
 				'requestid' => str_replace('.', '', microtime(true)),
-				'partnerid' => $this->partnerID,
+				'partnerid' => $this->partnerId,
 			] + $this::$requestParams;
 		$this::$requestParams += ['hash' => $this->createHash()];
 		$client = new Client(['baseUrl' => $this::$apiUrl]);
