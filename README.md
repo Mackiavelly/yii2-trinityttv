@@ -3,6 +3,7 @@ Yii2 + Trinity.TV
 Yii2 + Trinity.TV
 
 Документация
+
 https://docs.google.com/document/d/1P43gLkBuNB9DnPF9I3aGG7HvLCnUCCYjylVec8vcjjg/edit
 
 Installation
@@ -33,12 +34,12 @@ Once the extension is installed, simply use it in your code by  :
 ```php
 <?php
 $trinityApi = new mackiavelly\trinitytv\TrinityApi(['partnerID' => '000', 'salt' => '0000000000']);
-$trinityApi->create('localId', 'TariffId');
+$trinityApi->create('localId', 'tariffId');
 $trinityApi->subscriptionInfo('localId');
 $trinityApi->subscription('localId', $trinityApi::SUSPEND);
-$trinityApi->autorizeDevice('localId', 'MAC', 'UUID');
-$trinityApi->autorizeByCode('localId', 'CODE');
-$trinityApi->deleteDevice('localId', 'MAC', 'UUID');
+$trinityApi->autorizeDevice('localId', 'mac', 'uuid');
+$trinityApi->autorizeByCode('localId', 'code');
+$trinityApi->deleteDevice('localId', 'mac', 'uuid');
 $trinityApi->updateUser('localId', 'Имя', 'Фамилия', 'Отчество', 'Город');
 $trinityApi->deviceList('localId');
 $trinityApi->subscriberList();
