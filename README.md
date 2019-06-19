@@ -33,13 +33,14 @@ Once the extension is installed, simply use it in your code by  :
 ```php
 <?php
 $trinityApi = new mackiavelly\trinitytv\TrinityApi(['partnerID' => '000', 'salt' => '0000000000']);
-$trinityApi->subscriptionInfo('1132');
-$trinityApi->subscription('1132', $trinityApi::SUSPEND);
-$trinityApi->autorizeDevice('1132', 'MAC', 'UUID');
-$trinityApi->autorizeByCode('1132', 'CODE');
-$trinityApi->deleteDevice('1132', 'MAC');
-$trinityApi->updateUser('1132', 'Имя', 'Фамилия', 'Отчество', 'Город');
-$trinityApi->deviceList('1132');
+$trinityApi->create('localId', 'TariffId');
+$trinityApi->subscriptionInfo('localId');
+$trinityApi->subscription('localId', $trinityApi::SUSPEND);
+$trinityApi->autorizeDevice('localId', 'MAC', 'UUID');
+$trinityApi->autorizeByCode('localId', 'CODE');
+$trinityApi->deleteDevice('localId', 'MAC', 'UUID');
+$trinityApi->updateUser('localId', 'Имя', 'Фамилия', 'Отчество', 'Город');
+$trinityApi->deviceList('localId');
 $trinityApi->subscriberList();
 ?>
 ```
