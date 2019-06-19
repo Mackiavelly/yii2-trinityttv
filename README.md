@@ -33,7 +33,7 @@ Once the extension is installed, simply use it in your code by  :
 
 ```php
 <?php
-$trinityApi = new mackiavelly\trinitytv\TrinityApi(['partnerID' => '000', 'salt' => '0000000000']);
+$trinityApi = new mackiavelly\trinitytv\TrinityApi(['partnerId' => 'partnerId', 'salt' => 'salt']);
 $trinityApi->create('localId', 'tariffId');
 $trinityApi->subscriptionInfo('localId');
 $trinityApi->subscription('localId', $trinityApi::SUSPEND);
