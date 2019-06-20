@@ -23,11 +23,21 @@ class TrinityApi extends BaseObject {
 	 */
 	public $partnerId;
 	/**
-	 * ключ для формирования запроса на авторизацию
+	 * ключ для формирования запроса на авторизацию (выдаются при старте проекта)
 	 *
 	 * @var string
 	 */
 	public $salt;
+	
+	/**
+	 * масив тарифных планов для пользоватлей (выдаются при старте проекта)
+	 *
+	 * @var array
+	 */
+	public serviceId = [
+		'id' => 'name',
+	];
+	
 
 	public function init() {
 		if (!$this->partnerId || !$this->salt) {
