@@ -34,7 +34,7 @@ class TrinityApi extends BaseObject {
 	 *
 	 * @var array
 	 */
-	public serviceId = [
+	public $serviceId = [
 		'id' => 'name',
 	];
 	
