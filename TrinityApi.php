@@ -74,14 +74,14 @@ class TrinityApi extends BaseObject {
 	 * другую (например, «Информационный раздел» - может включать в себя информацию о тарифе, подключенные устройства).
 	 *
 	 * @param string $localId
-	 * @param string $subscrID
+	 * @param string $subscrId
 	 * @return bool|mixed
 	 */
-	public function create($localId, $subscrID) {
+	public function create($localId, $subscrId) {
 		$this::$action = 'create';
 		$this::$requestParams = [
 			'localid'  => $localId,
-			'subscrid' => $subscrID,
+			'subscrid' => $subscrId,
 		];
 		return $this->sendRequest();
 	}
