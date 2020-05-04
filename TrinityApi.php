@@ -136,9 +136,32 @@ class TrinityApi extends BaseObject {
 	 * "subscrid": "20051",
 	 * "subscrname": "DVcom TV Vip",
 	 * "subscrprice": "25",
-	 * "subscrstatus": "active"
+	 * "subscrstatus": "active",
+	 * "contractott": "123456",
+	 * "middlename": "Петров",
+	 * "name":"Иван",
+	 * "lastname": "Иванович",
+	 * "address": "Киев",
+	 * "contracttrinity": "654321",
+	 * "balance": "0",
+	 * "devicescount": "1",
+	 * "contractdate": "2019-09-13",
+	 * "last_session_date": "2019-09-13",
+	 * "note": "Примечание"
 	 * }
 	 * }
+	 * В случае ошибки выполнения будет возвращен объект с соответствующим ошибке кодом, например:
+	 * {
+	 * "requestid":"12345",
+	 * "result":"wrongparameters"
+	 * }
+	 * Возможные ошибки в ответе:
+	 * "wrongparameters"  - один из параметров не задан или задан неверно
+	 * "parametersnotset"  - обязательный параметр не установлен
+	 * "wronghash"    - неверный hash
+	 * "wrongpartnerid"  - несуществующий или неверный partner id
+	 * "wronglocalid"    - несуществующий или неверный local id
+	 * "dbconnerr"    - биллинг отверг запрос
 	 *
 	 * @param string $localId
 	 * @return bool|mixed
@@ -211,8 +234,24 @@ class TrinityApi extends BaseObject {
 	 * "requestid": "12345",
 	 * "result": "success"
 	 * }
-	 * Пример подключения устройства к аккаунту
-	 * http://partners.trinity-tv.net/partners/user/autorizedevice?requestid=126&partnerid=1&localid=100&mac=a1b2c3a1b2c3&hash=572192f7f971cc1f5f8ee390991808e4
+	 * В случае ошибки авторизации будет возвращен объект с соответствующим ошибке кодом, например:
+	 * {
+	 * "requestid":"100",
+	 * "result":"wrongparameters"
+	 * }
+	 * Возможные ошибки в ответе:
+	 * "wrongparameters"  - один из параметров не задан или задан неверно
+	 * "parametersnotset"  - обязательный параметр не установлен
+	 * "wronghash"    - неверный hash
+	 * "wrongpartnerid"  - несуществующий или неверный partner id
+	 * "wronglocalid"    - несуществующий или неверный local id
+	 * "wrongmac"    - мак указан  неверно
+	 * "dbconnerr"    - биллинг отверг запрос
+	 * ВАЖНО!
+	 * Если используете данный метод, запрещено использовать метод “Авторизация MAC/UUID устройства по коду” во избежания
+	 * дублирования записей в базе, ввиду того, что эти методы друг друга исключают. Пример подключения устройства к
+	 * аккаунту
+	 * http://partners.trinity-tv.net/partners/user/autorizedevice?requestid=126&partnerid=1&localid=100&mac=a1b2c3a1b2c3&hash=572192f7f971cc1f5f8ee390991808e
 	 *
 	 * @param string $localId
 	 * @param string $mac
@@ -482,11 +521,100 @@ class TrinityApi extends BaseObject {
 	 * "status": true,
 	 * "uuid": "http://p1.sweet.tv/p/5talzcaeml.m3u8"
 	 * }
+	 *
+	 * @param string $localId
+	 * @return bool|mixed
 	 */
 	public function getPlayList($localId) {
 		$this::$action = 'getplaylist';
 		$this::$requestParams = [
 			'localid' => $localId,
+		];
+		return $this->sendRequest();
+	}
+
+	/**
+	 * Получение даты начала/старта последней сессии пользователей
+	 * Для получения сессий необходимо передать информацию в следующем формате:
+	 * GET /partners/user/getsessionsdate?requestid={requestid}&partnerid={partnerid}&hash={hash}
+	 * {requestid} ID запроса.Уникальный числовой идентификатор запроса - любое уникальное число генерируемое на стороне
+	 * партнера .
+	 * {partnerid} Cтрока, обязательный идентификатор партнера.Числовое значение. Выдается менеджером нашей компании
+	 * {hash} Формируется md5 hash из строк requestid+partnerid+salt . Salt выдается менеджером нашей компании
+	 * Пример запроса на получение сессий пользователей:
+	 * http://partners.trinity-tv.net/partners/user/getsessionsdate?requestid=126&partnerid=73&hash=46eb5d6204b9d0f474727061251f8b06
+	 * {
+	 * "requestid": "126",
+	 * "result": "success",
+	 * "sessions": [{
+	 * "contract": 205445,
+	 * "localid": 2445,
+	 * "last_session_date": "2020-02-03 14:17:17"
+	 * }, {
+	 * "contract": 860901,
+	 * "localid": 2446,
+	 * "last_session_date": "2020-02-16 00:38:46"
+	 * }]
+	 * }
+	 * В случае ошибки будет возвращен объект с соответствующим ошибке кодом, например:
+	 * {
+	 * "requestid":"100",
+	 * "result":"wrongparameters"
+	 * }
+	 * Возможные ошибки в ответе:
+	 * "wrongparameters"  - один из параметров не задан или задан неверно
+	 * "parametersnotset"  - обязательный параметр не установлен
+	 * "wronghash"    - неверный hash
+	 * "wrongpartnerid"  - несуществующий или неверный partner id
+	 *
+	 * @return bool|mixed
+	 */
+	public function getSessionsDate() {
+		$this::$action = 'getsessionsdate';
+		$this::$requestParams = [];
+		return $this->sendRequest();
+	}
+
+	/**
+	 * Изменение Договора Партнера.
+	 * Изменение договора производится передачей запроса вида:
+	 * GET
+	 * /partners/user/newcontract?requestid={requestid}&partnerid={partnerid}&localid={localid}&newcontract={newcontract}&hash={hash}
+	 * {requestid} ID запроса.Уникальный числовой идентификатор запроса - любое уникальное число генерируемое на стороне
+	 * партнера .
+	 * {partnerid} Cтрока, обязательный идентификатор партнера.Числовое значение. Выдается менеджером нашей компании
+	 * {localid} Cтрока, Идентификатор абонента в сети партнера. Числовое значение.
+	 * {newcontract}Имя абонента кодированное  в urlencoded.
+	 * {hash} Формируется md5 hash из строк requestid+partnerid+localid+newcontract+salt . Salt выдается менеджером нашей
+	 * компании ВАЖНО MD5 берется из строки с символами urlencoded Для успешного выполнения операции требуется
+	 * обязательное наличие всех параметров.
+	 * http://partners.trinity-tv.net/partners/user/newcontract?requestid=571&partnerid=73&localid=1&newcontract=232323&hash=6914414849bf66de15326d4e38d318c7
+	 * {
+	 * "requestid": "571",
+	 * "result": "success"
+	 * }
+	 * В случае ошибки будет возвращен объект с соответствующим ошибке кодом, например:
+	 * {
+	 * "requestid":"100",
+	 * "result":"wrongparameters"
+	 * }
+	 * Возможные ошибки в ответе:
+	 * "wrongparameters"  - один из параметров не задан или задан неверно
+	 * "parametersnotset"  - обязательный параметр не установлен
+	 * "wronghash"    - неверный hash
+	 * "wrongpartnerid"  - несуществующий или неверный partner id
+	 * "wronglocalid"    - несуществующий или неверный local id
+	 * "dbconnerr"    - биллинг отверг запрос
+	 *
+	 * @param string $localId
+	 * @param string $newContract
+	 * @return bool|mixed
+	 */
+	public function newContract($localId, $newContract) {
+		$this::$action = 'newcontract';
+		$this::$requestParams = [
+			'localid'     => $localId,
+			'newcontract' => $newContract,
 		];
 		return $this->sendRequest();
 	}
