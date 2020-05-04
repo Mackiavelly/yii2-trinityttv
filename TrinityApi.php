@@ -38,6 +38,12 @@ class TrinityApi extends BaseObject {
 		'id' => 'name',
 	];
 
+	/**
+	 * Debug mode
+	 * @var string|bool
+	 */
+	public $debug;
+
 
 	public function init() {
 		if (!$this->partnerId || !$this->salt) {
