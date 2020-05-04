@@ -40,7 +40,7 @@ class TrinityApi extends BaseObject {
 
 	/**
 	 * Debug mode
-	 * @var string|bool|int
+	 * @var string|bool
 	 */
 	public $debug;
 
