@@ -228,9 +228,9 @@ class TrinityApi extends BaseObject {
 	public function code($code) {
 		$codeParams = [
 			'updateuser'          => ['firstname', 'lastname', 'middlename', 'address'],
-			'autorizebycode'      => ['note'],
+			/*'autorizebycode'      => ['note'],
 			'autorizedevice_note' => ['note'],
-			'updatenotebydevice'  => ['note'],
+			'updatenotebydevice'  => ['note'],*/
 		];
 		foreach ($codeParams as $action => $fields) {
 			if ($this::$action == $action) {
