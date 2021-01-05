@@ -3,6 +3,7 @@
 namespace mackiavelly\trinitytv;
 
 use Exception;
+use Yii;
 use yii\base\BaseObject;
 use yii\helpers\Json;
 use yii\httpclient\Client;
@@ -88,7 +89,7 @@ class TrinityApi extends BaseObject {
 		$this::$requestParams = [
 			'localid' => $localId,
 			'code'    => $code,
-			'note' => $note,
+			'note'    => $note,
 		];
 		return $this->sendRequest();
 	}
@@ -220,17 +221,14 @@ class TrinityApi extends BaseObject {
 			$this::$requestParams += ['uuid' => trim($uuid)];
 		}
 		if (!empty($note)) {
-			$this::$requestParams += ['note' => trim($note)];
+			$this::$requestParams += ['note' => mb_convert_encoding(trim($note), 'CP1251')];
 		}
 		return $this->sendRequest();
 	}
 
 	public function code($code) {
 		$codeParams = [
-			'updateuser'          => ['firstname', 'lastname', 'middlename', 'address'],
-			/*'autorizebycode'      => ['note'],
-			'autorizedevice_note' => ['note'],
-			'updatenotebydevice'  => ['note'],*/
+			'updateuser' => ['firstname', 'lastname', 'middlename', 'address'],
 		];
 		foreach ($codeParams as $action => $fields) {
 			if ($this::$action == $action) {
