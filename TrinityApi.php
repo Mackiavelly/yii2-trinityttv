@@ -3,7 +3,6 @@
 namespace mackiavelly\trinitytv;
 
 use Exception;
-use Yii;
 use yii\base\BaseObject;
 use yii\helpers\Json;
 use yii\httpclient\Client;
@@ -22,7 +21,6 @@ class TrinityApi extends BaseObject {
 
 	/**
 	 * Debug mode
-	 *
 	 * @var string|bool
 	 */
 	public $debug;
@@ -30,21 +28,18 @@ class TrinityApi extends BaseObject {
 	/**
 	 * Базовые настройки для провайдера (выдаются при старте проекта)
 	 * идентификатор партнера
-	 *
 	 * @var string
 	 */
 	public $partnerId;
 
 	/**
 	 * ключ для формирования запроса на авторизацию (выдаются при старте проекта)
-	 *
 	 * @var string
 	 */
 	public $salt;
 
 	/**
 	 * масив тарифных планов для пользователей (выдаются при старте проекта)
-	 *
 	 * @var array
 	 */
 	public $serviceId = [
@@ -77,11 +72,9 @@ class TrinityApi extends BaseObject {
 	 * }
 	 * Пример подключения устройства к аккаунту
 	 * http://partners.trinity-tv.net/partners/user/autorizebycode?requestid=100&partnerid=73&localid=4&code=1122&hash=f1f45e4eeb809439941baa952815a311
-	 *
 	 * @param string $localId
 	 * @param string $code
 	 * @param string $note
-	 *
 	 * @return bool|mixed
 	 */
 	public function autorizeByCode($localId, $code, $note = '') {
@@ -92,6 +85,47 @@ class TrinityApi extends BaseObject {
 			'note'    => $note,
 		];
 		return $this->sendRequest();
+	}
+
+	public function sendRequest() {
+		$this::$requestParams = [
+				'requestid' => str_replace('.', '', microtime(true)),
+				'partnerid' => $this->partnerId,
+			] + $this::$requestParams;
+		$this::$requestParams += ['hash' => $this->createHash()];
+		$client = new Client(['baseUrl' => $this::$apiUrl]);
+		$response = $client->get($this::$action, $this::$requestParams)->send();
+		if ($response->isOk) {
+			return Json::decode($response->getContent());
+		}
+		return false;
+	}
+
+	public function createHash() {
+		$hashParams = ['note' => 'delete'];
+		$this->code(true);
+		$md5 = md5(implode('', array_diff_key($this::$requestParams, $hashParams) + ['salt' => $this->salt]));
+		$this->code(false);
+		return $md5;
+	}
+
+	public function code($code) {
+		$codeParams = [
+			'updateuser' => ['firstname', 'lastname', 'middlename', 'address'],
+		];
+		foreach ($codeParams as $action => $fields) {
+			if ($this::$action == $action) {
+				foreach ($this::$requestParams as $param => &$requestParam) {
+					if (in_array($param, $fields)) {
+						if ($code) {
+							$requestParam = urlencode($requestParam);
+						} else {
+							$requestParam = urldecode($requestParam);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -130,11 +164,9 @@ class TrinityApi extends BaseObject {
 	 * дублирования записей в базе, ввиду того, что эти методы друг друга исключают. Пример подключения устройства к
 	 * аккаунту
 	 * http://partners.trinity-tv.net/partners/user/autorizedevice?requestid=126&partnerid=1&localid=100&mac=a1b2c3a1b2c3&hash=572192f7f971cc1f5f8ee390991808e
-	 *
 	 * @param string $localId
 	 * @param string $mac
 	 * @param string $uuid
-	 *
 	 * @return bool|mixed
 	 */
 	public function autorizeDevice($localId, $mac = '', $uuid = '') {
@@ -192,14 +224,12 @@ class TrinityApi extends BaseObject {
 	 * ВАЖНО!
 	 * Если используете данный метод, запрещено использовать метод “Авторизация MAC/UUID устройства по коду” во избежания
 	 * дублирования записей в базе, ввиду того, что эти методы друг друга исключают.
-	 *
 	 * @param        $localId
 	 * @param string $mac
 	 * @param string $uuid
 	 * @param string $note
-	 *
 	 * @return false
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 
 	public function autorizeDeviceNote($localId, $mac = '', $uuid = '', $note = '') {
@@ -224,25 +254,6 @@ class TrinityApi extends BaseObject {
 			$this::$requestParams += ['note' => mb_convert_encoding(trim($note), 'CP1251')];
 		}
 		return $this->sendRequest();
-	}
-
-	public function code($code) {
-		$codeParams = [
-			'updateuser' => ['firstname', 'lastname', 'middlename', 'address'],
-		];
-		foreach ($codeParams as $action => $fields) {
-			if ($this::$action == $action) {
-				foreach ($this::$requestParams as $param => &$requestParam) {
-					if (in_array($param, $fields)) {
-						if ($code) {
-							$requestParam = urlencode($requestParam);
-						} else {
-							$requestParam = urldecode($requestParam);
-						}
-					}
-				}
-			}
-		}
 	}
 
 	/**
@@ -272,10 +283,8 @@ class TrinityApi extends BaseObject {
 	 * подключения услуги абоненту. При этом кнопка/ссылка «Подключить услугу» в личном кабинете на сайте Партнера (или в
 	 * другом месте на сайте Партнера) должна быть заменена на другую (например, «Информационный раздел»
 	 * - может включать в себя информацию о тарифе, подключенные устройства).
-	 *
 	 * @param string $localId
 	 * @param string $subscrId
-	 *
 	 * @return bool|mixed
 	 */
 	public function create($localId, $subscrId) {
@@ -285,14 +294,6 @@ class TrinityApi extends BaseObject {
 			'subscrid' => $subscrId,
 		];
 		return $this->sendRequest();
-	}
-
-	public function createHash() {
-		$hashParams = ['note' => 'delete'];
-		$this->code(true);
-		$md5 = md5(implode('', array_diff_key($this::$requestParams, $hashParams) + ['salt' => $this->salt]));
-		$this->code(false);
-		return $md5;
 	}
 
 	/**
@@ -314,11 +315,9 @@ class TrinityApi extends BaseObject {
 	 * }
 	 * Пример удаления MAC устройства пользователя из подписки
 	 * http://partners.trinity-tv.net/partners/user/deletedevice?requestid=126&partnerid=1&localid=100&mac=a1b2c3a1b2c4&hash=5666938ac15179a3642bb3bec014e221
-	 *
 	 * @param string $localId
 	 * @param string $mac
 	 * @param string $uuid
-	 *
 	 * @return bool|mixed
 	 */
 	public function deleteDevice($localId, $mac = '', $uuid = '') {
@@ -359,9 +358,7 @@ class TrinityApi extends BaseObject {
 	 * "uuid": “aabbccddeeddaa”
 	 * }]
 	 * }
-	 *
 	 * @param string $localId
-	 *
 	 * @return bool|mixed
 	 */
 	public function deviceList($localId) {
@@ -387,9 +384,7 @@ class TrinityApi extends BaseObject {
 	 * "status": true,
 	 * "uuid": "http://p1.sweet.tv/p/5talzcaeml.m3u8"
 	 * }
-	 *
 	 * @param string $localId
-	 *
 	 * @return bool|mixed
 	 */
 	public function getPlayList($localId) {
@@ -433,7 +428,6 @@ class TrinityApi extends BaseObject {
 	 * "parametersnotset"  - обязательный параметр не установлен
 	 * "wronghash"    - неверный hash
 	 * "wrongpartnerid"  - несуществующий или неверный partner id
-	 *
 	 * @return bool|mixed
 	 */
 	public function getSessionsDate() {
@@ -475,7 +469,6 @@ class TrinityApi extends BaseObject {
 	 * "spis_all": "70.00",
 	 * "spis_provider": "35.00"
 	 * }
-	 *
 	 * @return bool|mixed
 	 */
 	public function listReport() {
@@ -514,10 +507,8 @@ class TrinityApi extends BaseObject {
 	 * "wrongpartnerid"  - несуществующий или неверный partner id
 	 * "wronglocalid"    - несуществующий или неверный local id
 	 * "dbconnerr"    - биллинг отверг запрос
-	 *
 	 * @param string $localId
 	 * @param string $newContract
-	 *
 	 * @return bool|mixed
 	 */
 	public function newContract($localId, $newContract) {
@@ -527,20 +518,6 @@ class TrinityApi extends BaseObject {
 			'newcontract' => $newContract,
 		];
 		return $this->sendRequest();
-	}
-
-	public function sendRequest() {
-		$this::$requestParams = [
-				'requestid' => str_replace('.', '', microtime(true)),
-				'partnerid' => $this->partnerId,
-			] + $this::$requestParams;
-		$this::$requestParams += ['hash' => $this->createHash()];
-		$client = new Client(['baseUrl' => $this::$apiUrl]);
-		$response = $client->get($this::$action, $this::$requestParams)->send();
-		if ($response->isOk) {
-			return Json::decode($response->getContent());
-		}
-		return false;
 	}
 
 	/**
@@ -566,7 +543,6 @@ class TrinityApi extends BaseObject {
 	 * }
 	 * }
 	 * }
-	 *
 	 * @return bool|mixed
 	 */
 	public function subscriberList() {
@@ -603,10 +579,8 @@ class TrinityApi extends BaseObject {
 	 * этом услуга остается у него активированной (но заблокированной). После получения положительного ответа на это
 	 * уведомление от TRINITY-TV - Партнер фиксирует у себя факт успешного восстановления услуги абоненту. Пользователь может
 	 * продолжать пользоваться сервисом TRINITY-TV.
-	 *
 	 * @param string $localId
 	 * @param string $operationId должен быть [[TrinityApi::SUSPEND]] или [[TrinityApi::RESUME]]
-	 *
 	 * @return bool|mixed
 	 */
 	public function subscription($localId, $operationId) {
@@ -659,9 +633,7 @@ class TrinityApi extends BaseObject {
 	 * "wrongpartnerid"  - несуществующий или неверный partner id
 	 * "wronglocalid"    - несуществующий или неверный local id
 	 * "dbconnerr"    - биллинг отверг запрос
-	 *
 	 * @param string $localId
-	 *
 	 * @return bool|mixed
 	 */
 	public function subscriptionInfo($localId) {
@@ -699,10 +671,8 @@ class TrinityApi extends BaseObject {
 	 * "wronghash"      - неверный hash
 	 * "wrongpartnerid"    - несуществующий или неверный partner id
 	 * "unexpected_termination"  - в случае получения ошибки, связаться с менеджером
-	 *
 	 * @param        $deviceId
 	 * @param string $note
-	 *
 	 * @return null|false|mixed
 	 */
 	public function updateNoteByDevice($deviceId, $note = '') {
@@ -735,13 +705,11 @@ class TrinityApi extends BaseObject {
 	 * "result": "success"
 	 * }
 	 * http://partners.trinity-tv.net/partners/user/updateuser?requestid=100&partnerid=73&localid=4&firstname=%D0%A2%D0%B5%D1%81%D1%82&lastname=%D0%A2%D0%B5%D1%81%D1%82&middlename=%D0%A2%D0%B5%D1%81%D1%82&address=%D0%A2%D0%B5%D1%81%D1%82&hash=40069011fd25a1afa3122e0cee67bb6d
-	 *
 	 * @param string $localId
 	 * @param string $firstName
 	 * @param string $lastName
 	 * @param string $middleName
 	 * @param string $address
-	 *
 	 * @return bool|mixed
 	 */
 	public function updateUser($localId, $firstName = '-', $lastName = '-', $middleName = '-', $address = '-') {
@@ -755,6 +723,72 @@ class TrinityApi extends BaseObject {
 			'lastname'   => trim($lastName),
 			'middlename' => trim($middleName),
 			'address'    => trim($address),
+		];
+		return $this->sendRequest();
+	}
+
+
+	/**
+	 * Получение списка авторизованных устройств.
+	 * (Метод используется исключительно для синхронизации, данные актуальны по истечению 5ти минут после добавления или удаления нового устройства)
+	 * Получение данных по всем пользователям (запрос выполняем не чаще одно раза в 5 минут!):
+	 * GET/partners/user/fulldevicelist?requestid={requestid}&partnerid={partnerid}&hash={hash}
+	 * Получение данных по конкретному пользователю:
+	 * GET/partners/user/fulldevicelist?requestid={requestid}&partnerid={partnerid}&localid={localid}&hash={hash}
+	 * {requestid} ID запроса.Уникальный числовой идентификатор запроса - любое уникальное число генерируемое на стороне партнера .
+	 * {partnerid} Строка, обязательный идентификатор партнера.Числовое значение. Выдается менеджером нашей компании
+	 * {hash} Формируется md5 hash из строк requestid+partnerid+salt . Salt выдается менеджером нашей компании
+	 * {localid} Строка, Идентификатор абонента в сети партнера. Числовое значение.
+	 * {
+	 * "requestid": "126",
+	 * "result": "success",
+	 * "devices": [{
+	 * 0
+	 * {
+	 * "mac": "1008C1197C8E",
+	 * "uuid":  “null”,
+	 * "note":  "примечание для конечного устройства",
+	 * "device_type":"null",
+	 * "device_id":"3546141",
+	 * "contract_id":  "5788",
+	 * }
+	 * }]
+	 * }
+	 * Примечание:
+	 * “device_type” - идентификатор типа устройства
+	 * “device_id” - идентификатор привязанного устройства.
+	 *
+	 * DeviceType {
+	 * DT_Unknown = 0;
+	 * DT_DIB_120 = 1;
+	 * DT_IPTV_Player = 2;
+	 * DT_MAG200 = 7;
+	 * DT_MAG250_Micro = 8;
+	 * DT_MAG250_Mini = 9;
+	 * DT_Himedia_HD600A = 10;
+	 * DT_Android_Player = 11;
+	 * DT_STB_Emul = 12;
+	 * DT_SmartTV = 13;
+	 * DT_iNext = 14;
+	 * DT_M3U = 15;
+	 * DT_AndroidTV = 16;
+	 * DT_IOS_Player = 17;
+	 * DT_MacOS_Player = 18;
+	 * DT_Kivi_TV = 19;
+	 * DT_GX_STB = 20;
+	 * DT_NOMI_TV = 21;
+	 * DT_Web_Browser = 22;
+	 * DT_ERGO_TV = 23;
+	 * DT_AppleTV = 24;
+	 * DT_Xbox = 25;
+	 * }
+	 * @param string $localId
+	 * @return bool|mixed
+	 */
+	public function fulldeviceList($localId) {
+		$this::$action = 'fulldevicelist';
+		$this::$requestParams = [
+			'localid' => $localId,
 		];
 		return $this->sendRequest();
 	}
